@@ -7,7 +7,7 @@ export default function About() {
         </h2>
 
         <p className="text-lg leading-8 text-gray-600">
-          Srijanshil Medical Hall provides trusted healthcare,
+          Shrijanshil Medical Hall provides trusted healthcare,
           doctor consultation, medicine support, and patient-friendly services.
         </p>
       </div>

@@ -9,9 +9,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Srijanshil Medical Hall",
   description: "Srijanshil Medical Hall provides quality healthcare services, doctor consultations, medicine support, and patient-friendly care with experienced medical professionals.",
-  icons: {
-    icon: "/shrijanshillogo.jpeg"
-  }
+  icons:"/shrijanshillogo.jpeg"
 };
 
 export default function RootLayout({

@@ -18,7 +18,7 @@ export default function Hero() {
             </h2>
 
             <p className="mb-8 text-lg leading-8 text-gray-600">
-              Srijanshil Medical Hall provides quality healthcare services,
+              Shrijanshil Medical Hall provides quality healthcare services,
               doctor consultations, medicine support, and patient-friendly care
               with experienced medical professionals.
             </p>
@@ -43,11 +43,13 @@ export default function Hero() {
           <div className="relative">
             <div className="absolute inset-0 rounded-[40px] bg-blue-500/20 blur-2xl"></div>
             <Image
-              src="/image.png"
+              src="/medical.jpeg"
               alt="Medical Clinic"
-              className="relative h-[500px] w-full rounded-[40px] object-cover shadow-2xl"
+              className="relative rounded-[40px] object-cover shadow-2xl h-auto w-full"
               width={500}
               height={500}
+              loading='eager'
+            
             />
           </div>
         </div>
