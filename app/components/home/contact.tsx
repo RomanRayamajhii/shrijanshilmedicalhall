@@ -5,31 +5,67 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 
 const appointmentPhone = "9779702622921";
+const phonePattern = /^(?:\+?977[-\s]?)?(?:9\d{9}|0\d{8,9})$/;
+
+type FormErrors = {
+  patientName?: string;
+  phoneNumber?: string;
+  problem?: string;
+};
+
+function validateAppointmentForm(formData: FormData) {
+  const values = {
+    patientName: String(formData.get("patientName") || "").trim(),
+    phoneNumber: String(formData.get("phoneNumber") || "").trim(),
+    problem: String(formData.get("problem") || "").trim(),
+  };
+  const errors: FormErrors = {};
+
+  if (values.patientName.length < 2) {
+    errors.patientName = "Please enter the patient's full name.";
+  }
+
+  if (!phonePattern.test(values.phoneNumber.replace(/\s+/g, ""))) {
+    errors.phoneNumber = "Please enter a valid phone number.";
+  }
+
+  if (values.problem.length < 10) {
+    errors.problem = "Please describe the problem in at least 10 characters.";
+  }
+
+  if (values.problem.length > 500) {
+    errors.problem = "Please keep the problem description under 500 characters.";
+  }
+
+  return { values, errors };
+}
 
 export default function Contact() {
   const [status, setStatus] = useState("");
+  const [errors, setErrors] = useState<FormErrors>({});
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const patientName = String(formData.get("patientName") || "").trim();
-    const phoneNumber = String(formData.get("phoneNumber") || "").trim();
-    const problem = String(formData.get("problem") || "").trim();
+    const { values, errors: nextErrors } = validateAppointmentForm(formData);
 
-    if (!patientName || !phoneNumber || !problem) {
-      setStatus("Please fill in all appointment details.");
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      setStatus("Please fix the highlighted fields.");
       return;
     }
+
+    setErrors({});
 
     const message = [
       "New appointment request",
       "",
-      `Patient Name: ${patientName}`,
+      `Patient Name: ${values.patientName}`,
       "",
-      `Phone Number: ${phoneNumber}`,
+      `Phone Number: ${values.phoneNumber}`,
       "",
-      `Problem: ${problem}`,
+      `Problem: ${values.problem}`,
     ].join("\n");
 
     const whatsappUrl = `https://wa.me/${appointmentPhone}?text=${encodeURIComponent(
@@ -93,29 +129,64 @@ export default function Contact() {
 
         <div className="rounded-[30px] bg-white p-8 text-gray-800">
           <form className="space-y-5" onSubmit={handleSubmit}>
-            <input
-              name="patientName"
-              type="text"
-              placeholder="Patient Name"
-              required
-              className="w-full rounded-2xl border p-4"
-            />
+            <div>
+              <input
+                name="patientName"
+                type="text"
+                placeholder="Patient Name"
+                required
+                minLength={2}
+                aria-invalid={Boolean(errors.patientName)}
+                aria-describedby={
+                  errors.patientName ? "patientName-error" : undefined
+                }
+                className="w-full rounded-2xl border p-4 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+              {errors.patientName ? (
+                <p id="patientName-error" className="mt-2 text-sm text-red-600">
+                  {errors.patientName}
+                </p>
+              ) : null}
+            </div>
 
-            <input
-              name="phoneNumber"
-              type="tel"
-              placeholder="Phone Number"
-              required
-              className="w-full rounded-2xl border p-4"
-            />
+            <div>
+              <input
+                name="phoneNumber"
+                type="tel"
+                placeholder="Phone Number"
+                required
+                inputMode="tel"
+                aria-invalid={Boolean(errors.phoneNumber)}
+                aria-describedby={
+                  errors.phoneNumber ? "phoneNumber-error" : undefined
+                }
+                className="w-full rounded-2xl border p-4 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+              {errors.phoneNumber ? (
+                <p id="phoneNumber-error" className="mt-2 text-sm text-red-600">
+                  {errors.phoneNumber}
+                </p>
+              ) : null}
+            </div>
 
-            <textarea
-              name="problem"
-              rows={5}
-              placeholder="Describe Your Problem"
-              required
-              className="w-full rounded-2xl border p-4"
-            ></textarea>
+            <div>
+              <textarea
+                name="problem"
+                rows={5}
+                placeholder="Describe Your Problem"
+                required
+                minLength={10}
+                maxLength={500}
+                aria-invalid={Boolean(errors.problem)}
+                aria-describedby={errors.problem ? "problem-error" : undefined}
+                className="w-full rounded-2xl border p-4 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              ></textarea>
+              {errors.problem ? (
+                <p id="problem-error" className="mt-2 text-sm text-red-600">
+                  {errors.problem}
+                </p>
+              ) : null}
+            </div>
 
             <button
               type="submit"
