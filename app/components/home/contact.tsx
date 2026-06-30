@@ -1,10 +1,50 @@
+"use client";
+
 import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import Link from "next/link";
+import { FormEvent, useState } from "react";
+
+const appointmentPhone = "9779702622921";
+
 export default function Contact() {
+  const [status, setStatus] = useState("");
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const patientName = String(formData.get("patientName") || "").trim();
+    const phoneNumber = String(formData.get("phoneNumber") || "").trim();
+    const problem = String(formData.get("problem") || "").trim();
+
+    if (!patientName || !phoneNumber || !problem) {
+      setStatus("Please fill in all appointment details.");
+      return;
+    }
+
+    const message = [
+      "New appointment request",
+      "",
+      `Patient Name: ${patientName}`,
+      "",
+      `Phone Number: ${phoneNumber}`,
+      "",
+      `Problem: ${problem}`,
+    ].join("\n");
+
+    const whatsappUrl = `https://wa.me/${appointmentPhone}?text=${encodeURIComponent(
+      message
+    )}`;
+
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    setStatus("Opening WhatsApp with your appointment request.");
+    event.currentTarget.reset();
+  }
+
   return (
     <section
       id="contact"
-      className="bg-gradient-to-r from-blue-900 to-sky-500 px-6 py-20 text-white"
+      className="bg-linear-to-r from-blue-900 to-sky-500 px-6 py-20 text-white"
     >
       <div className="mx-auto max-w-7xl grid gap-10 lg:grid-cols-2">
         <div>
@@ -25,7 +65,9 @@ export default function Contact() {
             ><Phone size={20}/>+977 9702622921
             </Link>
             <Link
-              href="whatsapp://send?phone=+9779702622921"
+              href={`https://wa.me/${appointmentPhone}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex hover:text-blue-200 transition items-center gap-2"
             ><MessageCircle size={20} className="text-green-400"/>+977 9702622921
             </Link>
@@ -50,22 +92,28 @@ export default function Contact() {
         </div>
 
         <div className="rounded-[30px] bg-white p-8 text-gray-800">
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <input
+              name="patientName"
               type="text"
               placeholder="Patient Name"
+              required
               className="w-full rounded-2xl border p-4"
             />
 
             <input
+              name="phoneNumber"
               type="tel"
               placeholder="Phone Number"
+              required
               className="w-full rounded-2xl border p-4"
             />
 
             <textarea
+              name="problem"
               rows={5}
               placeholder="Describe Your Problem"
+              required
               className="w-full rounded-2xl border p-4"
             ></textarea>
 
@@ -75,6 +123,12 @@ export default function Contact() {
             >
               Send Appointment
             </button>
+
+            {status ? (
+              <p className="text-center text-sm font-medium text-blue-700">
+                {status}
+              </p>
+            ) : null}
           </form>
         </div>
       </div>
